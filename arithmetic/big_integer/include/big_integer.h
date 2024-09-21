@@ -4,10 +4,14 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <cstring>
+#include <algorithm>
 
 #include <allocator.h>
 #include <allocator_guardant.h>
 #include <not_implemented.h>
+
+#define DF_base "4294967296"
 
 class big_integer final:
     allocator_guardant
@@ -110,6 +114,7 @@ private:
     class trivial_division final:
         public division
     {
+
     
     public:
         
@@ -164,8 +169,26 @@ private:
 private:
 
     int _oldest_digit;
-    unsigned int *_other_digits;
-    allocator *_allocator;
+    unsigned int *_other_digits = nullptr;
+
+    allocator *_allocator = nullptr;
+
+private:
+
+    void copy_from(
+        big_integer const &other);
+
+    void initialize_from(
+        int const *digits,
+        size_t digits_count);
+
+    void initialize_from(
+        std::vector<int> const &digits,
+        size_t digits_count);
+
+    void initialize_from(
+        std::string const &value_as_string,
+        size_t base = 10);
 
 public:
 
@@ -182,6 +205,11 @@ public:
         std::string const &value_as_string,
         size_t base = 10,
         allocator *allocator = nullptr);
+
+    explicit big_integer(uint number);
+
+    explicit big_integer(
+        std::vector<unsigned int> const &digits);
 
 public:
 
@@ -371,10 +399,44 @@ public:
         std::istream &stream,
         big_integer &value);
 
+public:
+
+    size_t default_base = 1 << (8 * sizeof(int) - 1);
+
 private:
 
     [[nodiscard]] allocator *get_allocator() const noexcept override;
+
+public:
+
+    inline int sign() const noexcept;
+
+    inline bool is_zero() const noexcept;
+
+    inline unsigned int get_digit(int index) const noexcept;
+
+    inline int get_size() const noexcept;
+
+    big_integer &change_sign();
     
+private:
+
+    std::vector<int> convert_string_to_vector(std::string value_as_string, size_t index);
+
+    void clear();
+
+    std::vector<int> convert_to_base(std::string const &value, size_t base);
+
+public:
+
+    std::string big_integer_to_string(big_integer const & value) const;
+
+    std::string string_to_decimal(const std::string& number, int base);
+
+private:
+
+    int big_int_cmp(big_integer const & first, big_integer const & second) const;
+    inline unsigned int get_digit_big_endian(int position) const noexcept;
 };
 
 #endif //MATH_PRACTICE_AND_OPERATING_SYSTEMS_BIGINT_H
