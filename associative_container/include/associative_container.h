@@ -20,6 +20,9 @@ public:
         
         tkey key;
         tvalue value;
+
+        key_value_pair(tkey key, tvalue value) : key(key), value(value)
+        {}
         
     };
     
